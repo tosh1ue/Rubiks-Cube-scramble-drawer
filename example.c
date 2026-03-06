@@ -2,25 +2,34 @@
 #include <stdio.h>
 #include <stdint.h>
 
-uint8_t nums[3] = {1, 2, 3};
-
-void test_print(uint8_t* nums) {
-  printf("%d %d %d\n", nums[0], nums[1], nums[2]);
-}
-
 void main(void)  {
+  // U
+  printf("                +-----------+\n");
+  printf("                | %d | %d | %d |\n", 4, 4, 4);
+  printf("                +-----------+\n");
+  printf("                | %d | %d | %d |\n", 4, 4, 4);
+  printf("                +-----------+\n");
+  printf("                | %d | %d | %d |\n", 4, 4, 4);
+  printf("                +-----------+\n");
+  printf("\n");
 
   // F L R B
-  // printf("+-----------+\n");
-  // printf("| %d | %d | %d |\n", 3, 3, 3);
-  // printf("+-----------+\n");
-  // printf("| %d | %d | %d |\n", 3, 3, 3);
-  // printf("+-----------+\n");
-  // printf("| %d | %d | %d |\n", 3, 3, 3);
-  // printf("+-----------+\n");
-  test_print(nums);
+  printf("+-----------+   +-----------+   +-----------+   +-----------+\n");
+  printf("| %d | %d | %d |   | %d | %d | %d |   | %d | %d | %d |   | %d | %d | %d |\n", 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 2, 2);
+  printf("+-----------+   +-----------+   +-----------+   +-----------+\n");
+  printf("| %d | %d | %d |   | %d | %d | %d |   | %d | %d | %d |   | %d | %d | %d |\n", 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 2, 2);
+  printf("+-----------+   +-----------+   +-----------+   +-----------+\n");
+  printf("| %d | %d | %d |   | %d | %d | %d |   | %d | %d | %d |   | %d | %d | %d |\n", 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 2, 2);
+  printf("+-----------+   +-----------+   +-----------+   +-----------+\n");
+  printf("\n");
 
-  while (1) {
-
-  }
+  // D
+  printf("                +-----------+\n");
+  printf("                | %d | %d | %d |\n", 5, 5, 5);
+  printf("                +-----------+\n");
+  printf("                | %d | %d | %d |\n", 5, 5, 5);
+  printf("                +-----------+\n");
+  printf("                | %d | %d | %d |\n", 5, 5, 5);
+  printf("                +-----------+\n");
+  printf("\033[32mshow color on terminal is available now\033[0m\n");
 }
