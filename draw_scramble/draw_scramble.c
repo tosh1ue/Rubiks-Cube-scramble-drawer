@@ -1,56 +1,44 @@
+/**
+ * @file draw_scramble.c
+ * @brief 用于根据打乱公式计算打乱后的颜色信息
+ * @author tosh1ue
+ * @date 2026-02-03
+ */
+
 #include "draw_scramble.h"
+#include <string.h>
 
-/*
-用于根据打乱公式生成打乱图案
-*/
+#define CUBE_ORDER 3 // 魔方阶数
+#define CUBE_FACE_NUM 6 // 魔方面数
+#define CUBE_FACE_STICKER_NUM (CUBE_ORDER * CUBE_ORDER - 1) // 魔方每面色块数，省略中心块
+#define CUBE_TURN_CYCLE 4 // 魔方转动周期
+#define CUBE_STICKER_NUM (CUBE_FACE_NUM * CUBE_STICKER_NUM) // 魔方总色块数
 
-/*
-魔方颜色值，这部分仅供参考，实际应该在显示端（如LVGL）定义
-#define CUBE_COLOR_GREEN 0x07E0
-#define CUBE_COLOR_RED 0xF800
-#define CUBE_COLOR_BLUE 0x001F
-#define CUBE_COLOR_ORANGE 0xFD20
-#define CUBE_COLOR_WHITE 0xFFFF
-#define CUBE_COLOR_YELLOW 0xFFE0
-*/
+/**
+ * @brief 魔方面索引值，白顶绿前，正视面对应绿色面，以此类推
+ */
+#define CUBE_FACE_F_IDX CUBE_COLOR_GREEN
+#define CUBE_FACE_R_IDX CUBE_COLOR_RED
+#define CUBE_FACE_B_IDX CUBE_COLOR_BLUE
+#define CUBE_FACE_L_IDX CUBE_COLOR_ORANGE
+#define CUBE_FACE_U_IDX CUBE_COLOR_WHITE
+#define CUBE_FACE_D_IDX CUBE_COLOR_YELLOW
 
-/*
-魔方颜色索引值
-*/
-#define CUBE_COLOR_GREEN_IDX 0
-#define CUBE_COLOR_RED_IDX 1
-#define CUBE_COLOR_BLUE_IDX 2
-#define CUBE_COLOR_ORANGE_IDX 3
-#define CUBE_COLOR_WHITE_IDX 4
-#define CUBE_COLOR_YELLOW_IDX 5
+/**
+ * @brief 魔方正视面
+ */
+#define CUBE_FACING_FRONT CUBE_FACE_F_IDX
+#define CUBE_FACING_RIGHT CUBE_FACE_R_IDX
+#define CUBE_FACING_BACK CUBE_FACE_B_IDX
+#define CUBE_FACING_LEFT CUBE_FACE_L_IDX
+#define CUBE_FACING_UP CUBE_FACE_U_IDX
+#define CUBE_FACING_DOWN CUBE_FACE_D_IDX
 
-/*
-魔方面索引值，白顶绿前，正视面对应绿色面，以此类推
-*/
-#define CUBE_FACE_F_IDX CUBE_COLOR_GREEN_IDX
-#define CUBE_FACE_R_IDX CUBE_COLOR_RED_IDX
-#define CUBE_FACE_B_IDX CUBE_COLOR_BLUE_IDX
-#define CUBE_FACE_L_IDX CUBE_COLOR_ORANGE_IDX
-#define CUBE_FACE_U_IDX CUBE_COLOR_WHITE_IDX
-#define CUBE_FACE_D_IDX CUBE_COLOR_YELLOW_IDX
-
-/*
-枚举魔方正视面
-*/
-typedef enum {
-  CUBE_FACING_FRONT = CUBE_FACE_F_IDX,
-  CUBE_FACING_RIGHT = CUBE_FACE_R_IDX,
-  CUBE_FACING_BACK = CUBE_FACE_B_IDX,
-  CUBE_FACING_LEFT = CUBE_FACE_L_IDX,
-  CUBE_FACING_UP = CUBE_FACE_U_IDX,
-  CUBE_FACING_DOWN = CUBE_FACE_D_IDX
-}Cube_Facing;
-
-/*
-魔方正视面映射关系，以枚举魔方正视面顺序排列，通过当前正视面获取四个相邻面的索引及顺序
-结构：CUBE_FACING_MAP[Cube_Facing idx] = {CUBE_FACING_LEFT, CUBE_FACING_UP, CUBE_FACING_RIGHT, CUBE_FACING_DOWN};
-*/
-static const uint8_t CUBE_FACING_MAP[CUBE_FACE_NUM][4] = {
+/**
+ * @brief 魔方正视面映射关系，以枚举魔方正视面顺序排列，通过当前正视面获取四个相邻面的索引及顺序
+ * 结构：CUBE_FACING_MAP[Cube_Facing idx] = {CUBE_FACING_LEFT, CUBE_FACING_UP, CUBE_FACING_RIGHT, CUBE_FACING_DOWN};
+ */
+static const uint8_t CUBE_FACING_MAP[CUBE_FACE_NUM][CUBE_TURN_CYCLE] = {
   {CUBE_FACE_L_IDX, CUBE_FACE_U_IDX, CUBE_FACE_R_IDX, CUBE_FACE_D_IDX}, // CUBE_FACING_FRONT
   {CUBE_FACE_F_IDX, CUBE_FACE_U_IDX, CUBE_FACE_B_IDX, CUBE_FACE_D_IDX}, // CUBE_FACING_RIGHT
   {CUBE_FACE_R_IDX, CUBE_FACE_U_IDX, CUBE_FACE_L_IDX, CUBE_FACE_D_IDX}, // CUBE_FACING_BACK
@@ -59,50 +47,36 @@ static const uint8_t CUBE_FACING_MAP[CUBE_FACE_NUM][4] = {
   {CUBE_FACE_B_IDX, CUBE_FACE_L_IDX, CUBE_FACE_F_IDX, CUBE_FACE_R_IDX}  // CUBE_FACING_DOWN
 };
 
-/*************************************************************************************************************************
-一维数组设计  ↓↓↓
-*************************************************************************************************************************/
 
-/*
-定义魔方色块的索引值（数组下标），用于一维数组数据结构，中心块无需定义，以FRU为起始点，顺时针顺序排列
-*/
-#define CUBE_STICKER_FRU_IDX 0
-#define CUBE_STICKER_FR_IDX 1
-#define CUBE_STICKER_FRD_IDX 2
-#define CUBE_STICKER_FD_IDX 3
-#define CUBE_STICKER_FLD_IDX 4
-#define CUBE_STICKER_FL_IDX 5
-#define CUBE_STICKER_FLU_IDX 6
-#define CUBE_STICKER_FU_IDX 7
 
-/*
-定义整体转动色块映射，以魔方色块的索引值顺序排列
-弃用，只需偏移量即可，无需查表
-*/
-// static const uint8_t CUBE_STICKER_MAP[3][CUBE_FACE_STICKER_NUM] = {
-//   {CUBE_STICKER_FLD_IDX, CUBE_STICKER_FL_IDX, CUBE_STICKER_FLU_IDX,
-//    CUBE_STICKER_FD_IDX,                         CUBE_STICKER_FU_IDX,
-//    CUBE_STICKER_FRD_IDX, CUBE_STICKER_FR_IDX, CUBE_STICKER_FRU_IDX}, // y
+/**
+ * @brief 魔方颜色结构，由于中心块不变，无需存储
+ * @details 用face_idx * gap + sticker_idx 取值
+ *          +-----------+
+ *          | 0 | 1 | 2 |
+ *          +-----------+
+ *          | 7 |   | 3 |
+ *          +-----------+
+ *          | 6 | 5 | 4 |
+ *          +-----------+
+ */
+#define CUBE_STICKER_FLU_IDX 0
+#define CUBE_STICKER_FU_IDX 1
+#define CUBE_STICKER_FRU_IDX 2
+#define CUBE_STICKER_FR_IDX 3
+#define CUBE_STICKER_FRD_IDX 4
+#define CUBE_STICKER_FD_IDX 5
+#define CUBE_STICKER_FLD_IDX 6
+#define CUBE_STICKER_FL_IDX 7
 
-//   {CUBE_STICKER_FRD_IDX, CUBE_STICKER_FD_IDX, CUBE_STICKER_FLD_IDX,
-//    CUBE_STICKER_FR_IDX,                         CUBE_STICKER_FL_IDX,
-//    CUBE_STICKER_FRU_IDX, CUBE_STICKER_FU_IDX, CUBE_STICKER_FLU_IDX}, // y2
+static uint8_t cube[CUBE_STICKER_NUM];
 
-//   {CUBE_STICKER_FRU_IDX, CUBE_STICKER_FR_IDX, CUBE_STICKER_FRD_IDX,
-//    CUBE_STICKER_FU_IDX,                         CUBE_STICKER_FD_IDX,
-//    CUBE_STICKER_FLU_IDX, CUBE_STICKER_FL_IDX, CUBE_STICKER_FLD_IDX} // y'
-// };
-
-/*
-说明：正视面————交换色块的下标索引
-正视F R B L时，交换FRU FR FRD，需要做映射
-正视U时，交换FLU FU FRU，不需要做映射
-正视D时，交换FLD FD FRD，不需要做映射
-@param Cube_Facing facing_idx 魔方当前正视面的下标
-@param uint8_t *idxs 交换色块的下标索引
-return 无
-*/
-void get_sticker_idxs(Cube_Facing facing_idx, uint8_t *idxs) {
+/**
+ * @brief 以当前正视面获取交换色块的下标索引
+ * @param facing_idx 魔方当前正视面的下标
+ * @param *idxs 交换色块的下标索引指针
+ */
+void get_sticker_idxs(cube_facing_t facing_idx, uint8_t *idxs) {
   switch (facing_idx) {
     case CUBE_FACING_FRONT:
     case CUBE_FACING_RIGHT:
@@ -127,14 +101,14 @@ void get_sticker_idxs(Cube_Facing facing_idx, uint8_t *idxs) {
   }
 }
 
-/*
-说明：魔方颜色初始化，即还原魔方六面的颜色
-@param cube_t *cube 魔方颜色结构体指针
-@return 无
-*/
-void cube_color_init(cube_t *cube) {
-  for(int i = 0; i < CUBE_FACE_NUM; ++i) {
-    memset(cube->face[i], i, sizeof(cube_face_t));
+/**
+ * @brief 魔方颜色初始化，即还原魔方六面的颜色
+ * @param 无
+ * @return 无
+ */
+void cube_reset_color(void) {
+  for(int face_idx = 0; face_idx < CUBE_FACE_NUM; ++face_idx) {
+    memset(&cube[face_idx * CUBE_FACE_STICKER_NUM], face_idx, CUBE_FACE_STICKER_NUM * sizeof(uint8_t));
   }
 }
 
@@ -154,7 +128,7 @@ CUBE_TURN_CYCLE - turn_degree即为需要交换的面索引偏移，
 @param Cube_Turn turn 魔方转动角度
 @return 无
 */
-void cube_color_update(cube_t *cube, Cube_Facing facing_idx, Cube_Turn turn_degree) {
+void cube_color_update(cube_facing_t facing_idx, cube_turn_t turn_degree) {
   uint8_t tempColorIdx; // 临时颜色索引，用于处理循环交换
   uint8_t faceIdxOffset; // 魔方面索引偏移
   uint8_t stickerIdxOffset; // 魔方色块索引偏移
@@ -162,140 +136,8 @@ void cube_color_update(cube_t *cube, Cube_Facing facing_idx, Cube_Turn turn_degr
   // 相邻面面颜色更新，从正视面的L面开始
   get_sticker_idxs(facing_idx, stickerIdxs);
   faceIdxOffset = CUBE_TURN_CYCLE - turn_degree;
-  /*
-  下标0对应当前正视面左邻面，无需映射
-  下标1对应当前正视面上邻面，映射和当前正视面有关
-  下标2对应当前正视面右邻面，固定映射180度旋转偏移
-  下标3对应当前正视面下邻面，映射和当前正视面有关
-  tempColorIdx = cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]];
-  cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][0 + faceIdxOffset]][stickerIdxs[i]];
-  cube->face[CUBE_FACING_MAP[facing_idx][1]][stickerIdxs[i] + turn_degree] = cube->face[CUBE_FACING_MAP[facing_idx][1 + faceIdxOffset]][stickerIdxs[i]];
-  cube->face[CUBE_FACING_MAP[facing_idx][2]][stickerIdxs[i] + CUBE_TURN_180 * 2] = cube->face[CUBE_FACING_MAP[facing_idx][2 + faceIdxOffset]][stickerIdxs[i]];
-  cube->face[CUBE_FACING_MAP[facing_idx][3]][stickerIdxs[i] - turn_degree] = tempColorIdx;
-
-  勘误：面下标做偏移后，需要分情况讨论色块下标是否需要映射
-  turn_degree = 90度时，
-  0(无映射)----------------------------1(映射CUBE_TURN_CYCLE - facing_idx)
-  1(映射CUBE_TURN_CYCLE - facing_idx)--2(映射y2)
-  2(映射y2)----------------------------3(映射facing_idx)
-  3(映射facing_idx)--------------------0(无映射，tempColorIdx)
-  左侧下同
-  turn_degree = 180度时，0--2互换，1--3互换，tempColorIdx需要特殊处理，不能只记录0下标对应颜色索引
-  0------------------------------------2(映射y2)
-  1------------------------------------3(映射facing_idx)
-  2------------------------------------0(无映射)
-  3------------------------------------1(映射CUBE_TURN_CYCLE - facing_idx)
-  turn_degree = 270度时，
-  0------------------------------------3(映射facing_idx)
-  1------------------------------------0(无映射)
-  2------------------------------------1(映射CUBE_TURN_CYCLE - facing_idx)
-  3------------------------------------2(映射y2)
-  */
   switch (turn_degree) {
-    case CUBE_TURN_90: {
-      // 相邻面颜色更新
-      for(int i = 0; i < sizeof(stickerIdxs); ++i) {
-        tempColorIdx = cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]];
-        // 正视前四个面时需要映射
-        if(facing_idx == CUBE_FACING_FRONT || facing_idx == CUBE_FACING_RIGHT || facing_idx == CUBE_FACING_BACK || facing_idx == CUBE_FACING_LEFT) {
-          cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][3]][(stickerIdxs[i] + facing_idx * 2) % CUBE_FACE_STICKER_NUM];
-          cube->face[CUBE_FACING_MAP[facing_idx][3]][(stickerIdxs[i] + facing_idx * 2) % CUBE_FACE_STICKER_NUM] = cube->face[CUBE_FACING_MAP[facing_idx][2]][(stickerIdxs[i] + CUBE_TURN_180 * 2) % CUBE_FACE_STICKER_NUM];
-          cube->face[CUBE_FACING_MAP[facing_idx][2]][(stickerIdxs[i] + CUBE_TURN_180 * 2) % CUBE_FACE_STICKER_NUM] = cube->face[CUBE_FACING_MAP[facing_idx][1]][(stickerIdxs[i] + (CUBE_TURN_CYCLE - facing_idx) * 2) % CUBE_FACE_STICKER_NUM];
-          cube->face[CUBE_FACING_MAP[facing_idx][1]][(stickerIdxs[i] + (CUBE_TURN_CYCLE - facing_idx) * 2) % CUBE_FACE_STICKER_NUM] = tempColorIdx;
-        } else if(facing_idx == CUBE_FACING_UP || facing_idx == CUBE_FACING_DOWN) { // 正视顶面和底面时不需要映射
-          cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][3]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][3]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][2]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][2]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][1]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][1]][stickerIdxs[i]] = tempColorIdx;
-        }
-      }
-      // 正视面颜色更新
-      // 角块颜色更新
-      tempColorIdx = cube->face[facing_idx][CUBE_STICKER_FRU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FRU_IDX] = cube->face[facing_idx][CUBE_STICKER_FLU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FLU_IDX] = cube->face[facing_idx][CUBE_STICKER_FLD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FLD_IDX] = cube->face[facing_idx][CUBE_STICKER_FRD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FRD_IDX] = tempColorIdx;
-      // 棱块颜色更新
-      tempColorIdx = cube->face[facing_idx][CUBE_STICKER_FR_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FR_IDX] = cube->face[facing_idx][CUBE_STICKER_FU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FU_IDX] = cube->face[facing_idx][CUBE_STICKER_FL_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FL_IDX] = cube->face[facing_idx][CUBE_STICKER_FD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FD_IDX] = tempColorIdx;
-      break;
-    }
-    case CUBE_TURN_180: { // 两两互换，tempColorIdx需要做两次交换中间值
-      // 相邻面颜色更新
-      for(int i = 0; i < sizeof(stickerIdxs); ++i) {
-        tempColorIdx = cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]];
-        // 正视前四个面时需要映射
-        if(facing_idx == CUBE_FACING_FRONT || facing_idx == CUBE_FACING_RIGHT || facing_idx == CUBE_FACING_BACK || facing_idx == CUBE_FACING_LEFT) {
-          cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][2]][(stickerIdxs[i] + CUBE_TURN_180 * 2) % CUBE_FACE_STICKER_NUM];
-          cube->face[CUBE_FACING_MAP[facing_idx][2]][(stickerIdxs[i] + CUBE_TURN_180 * 2) % CUBE_FACE_STICKER_NUM] = tempColorIdx;
-
-          tempColorIdx = cube->face[CUBE_FACING_MAP[facing_idx][1]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][1]][(stickerIdxs[i] + (CUBE_TURN_CYCLE - facing_idx) * 2) % CUBE_FACE_STICKER_NUM] = cube->face[CUBE_FACING_MAP[facing_idx][3]][(stickerIdxs[i] + facing_idx * 2) % CUBE_FACE_STICKER_NUM];
-          cube->face[CUBE_FACING_MAP[facing_idx][3]][(stickerIdxs[i] + facing_idx * 2) % CUBE_FACE_STICKER_NUM] = tempColorIdx;
-        } else if(facing_idx == CUBE_FACING_UP || facing_idx == CUBE_FACING_DOWN) { // 正视顶面和底面时不需要映射
-          cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][2]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][2]][stickerIdxs[i]] = tempColorIdx;
-
-          tempColorIdx = cube->face[CUBE_FACING_MAP[facing_idx][1]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][1]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][3]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][3]][stickerIdxs[i]] = tempColorIdx;
-        }
-      }
-      // 正视面颜色更新
-      // 角块颜色更新
-      tempColorIdx = cube->face[facing_idx][CUBE_STICKER_FRU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FRU_IDX] = cube->face[facing_idx][CUBE_STICKER_FLD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FLD_IDX] = tempColorIdx;
-      tempColorIdx = cube->face[facing_idx][CUBE_STICKER_FRD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FRD_IDX] = cube->face[facing_idx][CUBE_STICKER_FLU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FLU_IDX] = tempColorIdx;
-      // 棱块颜色更新
-      tempColorIdx = cube->face[facing_idx][CUBE_STICKER_FR_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FR_IDX] = cube->face[facing_idx][CUBE_STICKER_FL_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FL_IDX] = tempColorIdx;
-      tempColorIdx = cube->face[facing_idx][CUBE_STICKER_FD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FD_IDX] = cube->face[facing_idx][CUBE_STICKER_FU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FU_IDX] = tempColorIdx;
-      break;
-    }
-    case CUBE_TURN_270: {
-      // 相邻面颜色更新
-      for(int i = 0; i < sizeof(stickerIdxs); ++i) {
-        tempColorIdx = cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]];
-        // 正视前四个面时需要映射
-        if(facing_idx == CUBE_FACING_FRONT || facing_idx == CUBE_FACING_RIGHT || facing_idx == CUBE_FACING_BACK || facing_idx == CUBE_FACING_LEFT) {
-          cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][1]][(stickerIdxs[i] + (CUBE_TURN_CYCLE - facing_idx) * 2) % CUBE_FACE_STICKER_NUM];
-          cube->face[CUBE_FACING_MAP[facing_idx][1]][(stickerIdxs[i] + (CUBE_TURN_CYCLE - facing_idx) * 2) % CUBE_FACE_STICKER_NUM] = cube->face[CUBE_FACING_MAP[facing_idx][2]][(stickerIdxs[i] + CUBE_TURN_180 * 2) % CUBE_FACE_STICKER_NUM];
-          cube->face[CUBE_FACING_MAP[facing_idx][2]][(stickerIdxs[i] + CUBE_TURN_180 * 2) % CUBE_FACE_STICKER_NUM] = cube->face[CUBE_FACING_MAP[facing_idx][3]][(stickerIdxs[i] + facing_idx * 2) % CUBE_FACE_STICKER_NUM];
-          cube->face[CUBE_FACING_MAP[facing_idx][3]][(stickerIdxs[i] + facing_idx * 2) % CUBE_FACE_STICKER_NUM] = tempColorIdx;
-        } else if(facing_idx == CUBE_FACING_UP || facing_idx == CUBE_FACING_DOWN) { // 正视顶面和底面时不需要映射
-          cube->face[CUBE_FACING_MAP[facing_idx][0]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][1]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][1]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][2]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][2]][stickerIdxs[i]] = cube->face[CUBE_FACING_MAP[facing_idx][3]][stickerIdxs[i]];
-          cube->face[CUBE_FACING_MAP[facing_idx][3]][stickerIdxs[i]] = tempColorIdx;
-        }
-      }
-      // 正视面颜色更新
-      // 角块颜色更新
-      tempColorIdx = cube->face[facing_idx][CUBE_STICKER_FRU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FRU_IDX] = cube->face[facing_idx][CUBE_STICKER_FRD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FRD_IDX] = cube->face[facing_idx][CUBE_STICKER_FLD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FLD_IDX] = cube->face[facing_idx][CUBE_STICKER_FLU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FLU_IDX] = tempColorIdx;
-      // 棱块颜色更新
-      tempColorIdx = cube->face[facing_idx][CUBE_STICKER_FR_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FR_IDX] = cube->face[facing_idx][CUBE_STICKER_FD_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FD_IDX] = cube->face[facing_idx][CUBE_STICKER_FL_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FL_IDX] = cube->face[facing_idx][CUBE_STICKER_FU_IDX];
-      cube->face[facing_idx][CUBE_STICKER_FU_IDX] = tempColorIdx;
-      break;
-    }
-    default:
-      break;
+    
   }
 }
 
@@ -305,7 +147,7 @@ void cube_color_update(cube_t *cube, Cube_Facing facing_idx, Cube_Turn turn_degr
 @param char *scarmble_step 单步打乱字符串
 @return 无
 */
-void cube_turn_one_step(cube_t *cube, char *scarmble_step) {
+void cube_turn_one_step(char *scarmble_step) {
   // 判断正视面
   uint8_t facing_idx;
   switch (scarmble_step[0]) {
@@ -332,7 +174,7 @@ void cube_turn_one_step(cube_t *cube, char *scarmble_step) {
   }
 
   // 判断转动角度
-  Cube_Turn turn_degree;
+  cube_turn_t turn_degree;
   switch (scarmble_step[1]) {
     case '\0':
       turn_degree = CUBE_TURN_90;
@@ -344,6 +186,7 @@ void cube_turn_one_step(cube_t *cube, char *scarmble_step) {
       turn_degree = CUBE_TURN_270;
       break;
     default:
+      turn_degree = CUBE_TURN_90;
       break;
   }
 
@@ -351,18 +194,17 @@ void cube_turn_one_step(cube_t *cube, char *scarmble_step) {
   cube_color_update(cube, facing_idx, turn_degree);
 }
 
-/*
-说明：魔方解析打乱字符串，分步调用单步打乱方法
-需要注意的是，如果scramble_alg在定义时已经指定了大小，末尾不会有\0
-可以用char *scarmble_alg;或char scramble_alg[];（不指定大小）
-@param cube_t *cube 魔方颜色结构体指针
-@param char *scarmble_alg 打乱公式字符串
-@return 无
-*/
-void cube_scramble_alg_parse(cube_t *cube, char *scarmble_alg) {
+/**
+ * @brief 说明：魔方解析打乱字符串，分步调用单步打乱方法
+ * 需要注意的是，如果scramble_alg在定义时已经指定了大小，末尾不会有\0
+ * 可以用char *scarmble_alg;或char scramble_alg[];（不指定大小）
+ * @param scarmble_alg 打乱公式字符串
+ * @return 无
+ */
+void cube_scramble_alg_parse(char* scarmble_alg) {
   char *ptr = scarmble_alg;
   char step[2];
-  Cube_Turn turn_degree;
+  cube_turn_t turn_degree;
   while(*ptr != '\0') {
     //while(*ptr == ' ') ptr++; // 跳过空格，这一步在内部调用时可以省略，因为存储结构不包含空格
     if(*ptr == 'F' || *ptr == 'R' || *ptr == 'B' || *ptr == 'L' || *ptr == 'U' || *ptr == 'D') {
@@ -392,6 +234,11 @@ void cube_scramble_alg_parse(cube_t *cube, char *scarmble_alg) {
   }
 }
 
-/*************************************************************************************************************************
-一维数组设计  ↑↑↑
-*************************************************************************************************************************/
+/**
+ * @brief 获取魔方颜色信息的接口
+ * @param 无
+ * @return 魔方颜色结构体指针，即指向存储颜色信息的数组的指针
+ */
+const cube_t* cube_get_color(void) {
+  return *cube;
+}

@@ -1,41 +1,48 @@
+/**
+ * @file draw_scramble.h
+ * @brief 用于根据打乱公式计算打乱后的颜色信息
+ * @author tosh1ue
+ * @date 2026-02-03
+ */
+
 #ifndef DRAW_SCRAMBLE_H
 #define DRAW_SCRAMBLE_H
 
 #include <stdint.h>
 
-/*
-用于根据打乱公式生成打乱图案
-*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define CUBE_FACE_ROW_NUM 3 // 魔方每面行数，即魔方阶数
-#define CUBE_FACE_STICKER_NUM (CUBE_FACE_ROW_NUM * CUBE_FACE_ROW_NUM - 1) // 魔方每面色块数，省略中心块
-#define CUBE_FACE_NUM 6 // 魔方面数
-#define CUBE_TURN_CYCLE 4 // 魔方转动周期
+/**
+ * @brief 魔方转动角度
+ */
+#define CUBE_TURN_90 1 // F
+#define CUBE_TURN_180 2 // F2
+#define CUBE_TURN_270 3 // F'
+typedef uint8_t cube_turn_t;
 
-/*
-枚举魔方转动角度
-*/
-typedef enum {
-  CUBE_TURN_90 = 1, // F
-  CUBE_TURN_180 = 2, // F2
-  CUBE_TURN_270 = 3, // F'
-}Cube_Turn;
+/**
+ * @brief 魔方颜色
+ */
+#define CUBE_COLOR_GREEN 0
+#define CUBE_COLOR_RED 1
+#define CUBE_COLOR_BLUE 2
+#define CUBE_COLOR_ORANGE 3
+#define CUBE_COLOR_WHITE 4
+#define CUBE_COLOR_YELLOW 5
+typedef uint8_t cube_color_t;
 
-/*
-定义魔方面的颜色存储结构，用一维数组表示，由于中心块不变，可以节省一个字节
-*/
-typedef uint8_t cube_face_t[CUBE_FACE_STICKER_NUM];
+typedef uint8_t cube_t;
 
-/*
-定义魔方颜色结构
-*/
-// 取值用 &cube->face[FACE_IDX][STICKER_IDX]
-typedef struct {
-  cube_face_t face[CUBE_FACE_NUM];
-}cube_t;
+void cube_reset_color(void);
 
-void cube_color_init(cube_t *cube);
+void cube_scramble_alg_parse(char *scramble_alg);
 
-void cube_scramble_alg_parse(cube_t *cube, char *scarmble_alg);
+const cube_t* cube_get_color(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
