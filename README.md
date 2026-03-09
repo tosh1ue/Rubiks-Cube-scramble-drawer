@@ -29,7 +29,7 @@
 `void cube_parse_step(const char* scramble_step);`
 
 将单步打乱翻译成正视面和旋转角度。
-### 第三层：
+### 第三层：执行颜色更新
 `void cube_turn(const cube_face_t facing_idx, const cube_turn_t turn_degree);`
 
 根据正视面和旋转角度，确定需要交换的相邻面序号及需要交换的色块的序号，执行颜色更新。
