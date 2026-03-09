@@ -13,9 +13,10 @@
 例如旋转90度，对应旋转一次。偏移 = (4 - 1) * 2 = 6，即0变为6的颜色，6变为4的颜色，以此类推。
 ### 跨面序号
 特定色块在完整颜色信息数组中的序号为：面序号乘以每个面的色块数（不含中心块）加上色块在面内的序号。
-
+```c
     stickerIdxPrefix = face_idx * CUBE_FACE_STICKER_NUM;
     cube_color_t sticker_color = cube[stickerIdxPrefix + sticker_idx];
+```
 例如获取第二个面的第三个色块当前的颜色信息：
 `cube_color_t color = cube[1 * 8 + 2];`
 
@@ -38,6 +39,7 @@
 `void cube_reset_color(void);`
 
 根据打乱公式更新魔方颜色：
+
 `void void cube_update_color(char *scramble_alg);`
 
 获取指向存储魔方颜色信息的数组的指针：
