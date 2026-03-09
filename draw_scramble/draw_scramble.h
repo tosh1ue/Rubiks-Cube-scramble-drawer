@@ -80,6 +80,9 @@ typedef uint8_t cube_face_t;
 #define CUBE_STICKER_FLD_IDX 6
 #define CUBE_STICKER_FL_IDX 7
 
+/**
+ * @brief 面内色块颜色交换相关宏定义
+ */
 #define STICKER_CORNER 0
 #define STICKER_EDGE 1
 #define STICKER_GAP 2

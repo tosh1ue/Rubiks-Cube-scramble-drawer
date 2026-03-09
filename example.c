@@ -72,21 +72,21 @@ void print_cube_with_color(const cube_t* cube) {
   printf("print rubik's cube with color:\n\n");
 
   // U
-  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[4*8+0]), GET_COLOR(cube[4*8+1]), GET_COLOR(cube[4*8+2]));
-  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[4*8+7]), GET_COLOR(     4     ), GET_COLOR(cube[4*8+3]));
-  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[4*8+6]), GET_COLOR(cube[4*8+5]), GET_COLOR(cube[4*8+4]));
+  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[1*8+6]), GET_COLOR(cube[1*8+7]), GET_COLOR(cube[1*8+0]));
+  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[1*8+5]), GET_COLOR(     1     ), GET_COLOR(cube[1*8+1]));
+  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[1*8+4]), GET_COLOR(cube[1*8+3]), GET_COLOR(cube[1*8+2]));
   printf("\n");
 
   // F R B L
-  printf("%s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"\n", GET_COLOR(cube[3*8+0]), GET_COLOR(cube[3*8+1]), GET_COLOR(cube[3*8+2]), GET_COLOR(cube[0*8+0]), GET_COLOR(cube[0*8+1]), GET_COLOR(cube[0*8+2]), GET_COLOR(cube[1*8+0]), GET_COLOR(cube[1*8+1]), GET_COLOR(cube[1*8+2]), GET_COLOR(cube[2*8+0]), GET_COLOR(cube[2*8+1]), GET_COLOR(cube[2*8+2]));
-  printf("%s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"\n", GET_COLOR(cube[3*8+7]), GET_COLOR(     3     ), GET_COLOR(cube[3*8+3]), GET_COLOR(cube[0*8+7]), GET_COLOR(     0     ), GET_COLOR(cube[0*8+3]), GET_COLOR(cube[1*8+7]), GET_COLOR(     1     ), GET_COLOR(cube[1*8+3]), GET_COLOR(cube[2*8+7]), GET_COLOR(     2     ), GET_COLOR(cube[2*8+3]));
-  printf("%s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"\n", GET_COLOR(cube[3*8+6]), GET_COLOR(cube[3*8+5]), GET_COLOR(cube[3*8+4]), GET_COLOR(cube[0*8+6]), GET_COLOR(cube[0*8+5]), GET_COLOR(cube[0*8+4]), GET_COLOR(cube[1*8+6]), GET_COLOR(cube[1*8+5]), GET_COLOR(cube[1*8+4]), GET_COLOR(cube[2*8+6]), GET_COLOR(cube[2*8+5]), GET_COLOR(cube[2*8+4]));
+  printf("%s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"\n", GET_COLOR(cube[5*8+6]), GET_COLOR(cube[5*8+7]), GET_COLOR(cube[5*8+0]), GET_COLOR(cube[0*8+0]), GET_COLOR(cube[0*8+1]), GET_COLOR(cube[0*8+2]), GET_COLOR(cube[2*8+6]), GET_COLOR(cube[2*8+7]), GET_COLOR(cube[2*8+0]), GET_COLOR(cube[3*8+4]), GET_COLOR(cube[3*8+5]), GET_COLOR(cube[3*8+6]));
+  printf("%s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"\n", GET_COLOR(cube[5*8+5]), GET_COLOR(     5     ), GET_COLOR(cube[5*8+1]), GET_COLOR(cube[0*8+7]), GET_COLOR(     0     ), GET_COLOR(cube[0*8+3]), GET_COLOR(cube[2*8+5]), GET_COLOR(     2     ), GET_COLOR(cube[2*8+1]), GET_COLOR(cube[3*8+3]), GET_COLOR(     3     ), GET_COLOR(cube[3*8+7]));
+  printf("%s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"   %s  %s  %s  "RESET"\n", GET_COLOR(cube[5*8+4]), GET_COLOR(cube[5*8+3]), GET_COLOR(cube[5*8+2]), GET_COLOR(cube[0*8+6]), GET_COLOR(cube[0*8+5]), GET_COLOR(cube[0*8+4]), GET_COLOR(cube[2*8+4]), GET_COLOR(cube[2*8+3]), GET_COLOR(cube[2*8+2]), GET_COLOR(cube[3*8+2]), GET_COLOR(cube[3*8+1]), GET_COLOR(cube[3*8+0]));
   printf("\n");
 
   // D
-  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[5*8+0]), GET_COLOR(cube[5*8+1]), GET_COLOR(cube[5*8+2]));
-  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[5*8+7]), GET_COLOR(     5     ), GET_COLOR(cube[5*8+3]));
-  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[5*8+6]), GET_COLOR(cube[5*8+5]), GET_COLOR(cube[5*8+4]));
+  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[4*8+2]), GET_COLOR(cube[4*8+3]), GET_COLOR(cube[4*8+4]));
+  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[4*8+1]), GET_COLOR(     4     ), GET_COLOR(cube[4*8+5]));
+  printf("         %s  %s  %s  "RESET"\n", GET_COLOR(cube[4*8+0]), GET_COLOR(cube[4*8+7]), GET_COLOR(cube[4*8+6]));
   printf("\n");
 }
 
@@ -94,7 +94,7 @@ int main(void) {
   cube_reset_color(); // 初始化魔方颜色信息
   const cube_t* cube = cube_get_color();
   cube_update_color("L B' D' L2 F2 L2 U' B2 D' L2 R2 F2 U L2 B' L' D B' L' F R'");
-  //print_cube_with_color(cube);
+  //print_cube_with_color(cube); // 部分终端不支持ANSI颜色转换
   print_cube_as_num(cube);
   return 0;
 }

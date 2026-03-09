@@ -55,10 +55,6 @@ void cube_reset_color(void) {
   for(int face_idx = 0; face_idx < CUBE_FACE_NUM; ++face_idx) {
     memset(&cube[face_idx * CUBE_FACE_STICKER_NUM], face_idx, CUBE_FACE_STICKER_NUM * sizeof(uint8_t));
   }
-  // debug时用的重置颜色数组，无视即可
-  // for (int i = 0; i < CUBE_STICKER_NUM; ++i) {
-  //   cube[i] = i;
-  // }
 }
 
 /**
@@ -198,7 +194,7 @@ void cube_parse_step(const char* scramble_step) {
  * @brief 说明：魔方解析打乱字符串，分步调用单步打乱方法
  * 需要注意的是，如果scramble_alg在定义时已经指定了大小，末尾不会有\0
  * 可以用char *scramble_alg;或char scramble_alg[];（不指定大小）
- * @param scarmble_alg 打乱公式字符串
+ * @param scramble_alg 打乱公式字符串
  * @return 无
  */
 void cube_update_color(char* scramble_alg) {
