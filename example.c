@@ -25,16 +25,6 @@
      (index) == 5 ? COLOR_YELLOW : \
      COLOR_WHITE)  // 默认返回白色
 
-//static uint8_t cube[48];
-// static uint8_t cube[48] = {
-//   2,3,2,0,1,4,0,3,
-//   3,1,1,2,1,1,5,4,
-//   5,5,3,3,0,3,4,5,
-//   5,1,3,4,4,5,4,0,
-//   0,1,2,0,4,5,5,4,
-//   3,2,0,2,2,2,1,0
-// };
-
 /**
  * @brief 打印魔方展开图
  * @param cube 魔方结构体指针
@@ -103,7 +93,7 @@ void print_cube_with_color(const cube_t* cube) {
 int main(void) {
   cube_reset_color(); // 初始化魔方颜色信息
   const cube_t* cube = cube_get_color();
-  cube_update_color("R2");
+  cube_update_color("L B' D' L2 F2 L2 U' B2 D' L2 R2 F2 U L2 B' L' D B' L' F R'");
   //print_cube_with_color(cube);
   print_cube_as_num(cube);
   return 0;
