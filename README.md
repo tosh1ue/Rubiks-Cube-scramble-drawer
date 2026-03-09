@@ -45,7 +45,7 @@
 # 示例
 example.c提供了两个前端绘制方法：
 
-`void (const cube_t* cube);`
+`void print_cube_as_num(const cube_t* cube);`
 
 `void print_cube_with_color(const cube_t* cube);`
 
