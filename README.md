@@ -45,7 +45,7 @@ void cube_reset_color(void);
 ```
 根据打乱公式更新魔方颜色：
 ```c
-void void cube_update_color(char *scramble_alg);
+void cube_update_color(char *scramble_alg);
 ```
 获取指向存储魔方颜色信息的数组的指针：
 ```c
