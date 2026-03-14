@@ -204,15 +204,10 @@ void cube_update_color(char* scramble_alg) {
     if(*ptr == 'F' || *ptr == 'R' || *ptr == 'B' || *ptr == 'L' || *ptr == 'U' || *ptr == 'D') {
       step[0] = *ptr;
       switch(*(ptr + 1)){       
-        case '2':{
-          ptr++; // 这个单步包含两个字符，ptr额外移动一位
-          step[1] = '2';
-          cube_parse_step(step);
-          break;
-        }
+        case '2':
         case '\'':{
+          step[1] = *(ptr + 1);
           ptr++; // 这个单步包含两个字符，ptr额外移动一位
-          step[1] = '\'';
           cube_parse_step(step);
           break;
         }
