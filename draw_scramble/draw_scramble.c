@@ -27,8 +27,8 @@ static const cube_face_t CUBE_SIDE_MAP[CUBE_FACE_NUM][CUBE_TURN_CYCLE] = {
 static cube_color_t cube[CUBE_STICKER_NUM];
 
 /**
- * @brief 以当前正视面获取交换色块的下标索引
- * @param turn_face 魔方当前正视面的下标
+ * @brief 以当前旋转面获取交换色块的下标索引
+ * @param turn_face 魔方当前旋转面的下标
  * @param idx 交换色块的下标索引指针
  */
 void get_sticker_idx(const cube_face_t turn_face, cube_color_t* idx) {
@@ -51,12 +51,12 @@ void get_sticker_idx(const cube_face_t turn_face, cube_color_t* idx) {
  */
 void cube_reset_color(void) {
   for(int face_idx = 0; face_idx < CUBE_FACE_NUM; ++face_idx) {
-    memset(&cube[face_idx * CUBE_FACE_STICKER_NUM], face_idx, CUBE_FACE_STICKER_NUM * sizeof(uint8_t));
+    memset(&cube[face_idx * STICKER_PER_FACE], face_idx, STICKER_PER_FACE * sizeof(uint8_t));
   }
 }
 
 /**
- * @brief 根据正视面和旋转角度，执行单步打乱颜色更新
+ * @brief 根据旋转面和旋转角度，执行单步打乱颜色更新
  * @details 以U为基准，4个相邻面的偏移分别是0 y' 0 y
  * @param turn_face 魔方旋转面索引
  * @param turn_degree 旋转角度
@@ -64,8 +64,8 @@ void cube_reset_color(void) {
  */
 void cube_turn(const cube_face_t turn_face, const cube_turn_t turn_degree) {
   cube_color_t tempColorIdx; // 临时颜色索引，用于处理循环交换
-  const uint8_t stickerIdxOffset = (CUBE_TURN_CYCLE - turn_degree) * 2; // 魔方面内色块索引偏移，用于处理正视面颜色交换
-  const uint8_t stickerIdxPrefix = turn_face * CUBE_FACE_STICKER_NUM; // 色块索引前缀，用于处理正视面颜色交换
+  const uint8_t stickerIdxOffset = (CUBE_TURN_CYCLE - turn_degree) * 2; // 魔方面内色块索引偏移，用于处理旋转面颜色交换
+  const uint8_t stickerIdxPrefix = turn_face * STICKER_PER_FACE; // 色块索引前缀，用于处理旋转面颜色交换
   const cube_face_t *faceIdx = CUBE_SIDE_MAP[turn_face];; // 需要交换的面下标索引
   cube_color_t stickerIdx[3]; // 需要交换的色块下标索引
   get_sticker_idx(turn_face, stickerIdx);
@@ -73,28 +73,28 @@ void cube_turn(const cube_face_t turn_face, const cube_turn_t turn_degree) {
     case CUBE_TURN_90: {
       // 相邻面颜色更新
       for (cube_color_t i = 0; i < sizeof(stickerIdx); ++i) {
-        tempColorIdx = cube[faceIdx[CUBE_SIDE_U] * CUBE_FACE_STICKER_NUM + stickerIdx[i]];
-        cube[faceIdx[CUBE_SIDE_U] * CUBE_FACE_STICKER_NUM + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_L] * CUBE_FACE_STICKER_NUM + OFFSET_L(stickerIdx[i])];
-        cube[faceIdx[CUBE_SIDE_L] * CUBE_FACE_STICKER_NUM + OFFSET_L(stickerIdx[i])] = cube[faceIdx[CUBE_SIDE_D] * CUBE_FACE_STICKER_NUM + stickerIdx[i]];
-        cube[faceIdx[CUBE_SIDE_D] * CUBE_FACE_STICKER_NUM + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_R] * CUBE_FACE_STICKER_NUM + OFFSET_R(stickerIdx[i])];
-        cube[faceIdx[CUBE_SIDE_R] * CUBE_FACE_STICKER_NUM + OFFSET_R(stickerIdx[i])] = tempColorIdx;
+        tempColorIdx = cube[faceIdx[CUBE_SIDE_U] * STICKER_PER_FACE + stickerIdx[i]];
+        cube[faceIdx[CUBE_SIDE_U] * STICKER_PER_FACE + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_L] * STICKER_PER_FACE + OFFSET_L(stickerIdx[i])];
+        cube[faceIdx[CUBE_SIDE_L] * STICKER_PER_FACE + OFFSET_L(stickerIdx[i])] = cube[faceIdx[CUBE_SIDE_D] * STICKER_PER_FACE + stickerIdx[i]];
+        cube[faceIdx[CUBE_SIDE_D] * STICKER_PER_FACE + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_R] * STICKER_PER_FACE + OFFSET_R(stickerIdx[i])];
+        cube[faceIdx[CUBE_SIDE_R] * STICKER_PER_FACE + OFFSET_R(stickerIdx[i])] = tempColorIdx;
       }
       break;
     }
     case CUBE_TURN_180: { // 180度是两两互换，需要特殊处理
       // 相邻面颜色更新
       for (cube_color_t i = 0; i < sizeof(stickerIdx); ++i) {
-        tempColorIdx = cube[faceIdx[CUBE_SIDE_U] * CUBE_FACE_STICKER_NUM + stickerIdx[i]];
-        cube[faceIdx[CUBE_SIDE_U] * CUBE_FACE_STICKER_NUM + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_D] * CUBE_FACE_STICKER_NUM + stickerIdx[i]];
-        cube[faceIdx[CUBE_SIDE_D] * CUBE_FACE_STICKER_NUM + stickerIdx[i]] = tempColorIdx;
-        tempColorIdx = cube[faceIdx[CUBE_SIDE_L] * CUBE_FACE_STICKER_NUM + OFFSET_L(stickerIdx[i])];
-        cube[faceIdx[CUBE_SIDE_L] * CUBE_FACE_STICKER_NUM + OFFSET_L(stickerIdx[i])] = cube[faceIdx[CUBE_SIDE_R] * CUBE_FACE_STICKER_NUM + OFFSET_R(stickerIdx[i])];
-        cube[faceIdx[CUBE_SIDE_R] * CUBE_FACE_STICKER_NUM + OFFSET_R(stickerIdx[i])] = tempColorIdx;
+        tempColorIdx = cube[faceIdx[CUBE_SIDE_U] * STICKER_PER_FACE + stickerIdx[i]];
+        cube[faceIdx[CUBE_SIDE_U] * STICKER_PER_FACE + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_D] * STICKER_PER_FACE + stickerIdx[i]];
+        cube[faceIdx[CUBE_SIDE_D] * STICKER_PER_FACE + stickerIdx[i]] = tempColorIdx;
+        tempColorIdx = cube[faceIdx[CUBE_SIDE_L] * STICKER_PER_FACE + OFFSET_L(stickerIdx[i])];
+        cube[faceIdx[CUBE_SIDE_L] * STICKER_PER_FACE + OFFSET_L(stickerIdx[i])] = cube[faceIdx[CUBE_SIDE_R] * STICKER_PER_FACE + OFFSET_R(stickerIdx[i])];
+        cube[faceIdx[CUBE_SIDE_R] * STICKER_PER_FACE + OFFSET_R(stickerIdx[i])] = tempColorIdx;
       }
-      // 正视面颜色更新（i: 0~角块  1~棱块）
+      // 旋转面颜色更新（i: 0~角块  1~棱块）
       for (uint8_t i = STICKER_CORNER; i <= STICKER_EDGE; ++i) {
         cube_color_t sticker_src_idx = i;
-        cube_color_t sticker_dest_idx = (sticker_src_idx + stickerIdxOffset) % CUBE_FACE_STICKER_NUM;
+        cube_color_t sticker_dest_idx = (sticker_src_idx + stickerIdxOffset) % STICKER_PER_FACE;
         tempColorIdx = cube[stickerIdxPrefix + sticker_src_idx];
         cube[stickerIdxPrefix + sticker_src_idx] = cube[stickerIdxPrefix + sticker_dest_idx];
         cube[stickerIdxPrefix + sticker_dest_idx] = tempColorIdx;
@@ -105,32 +105,32 @@ void cube_turn(const cube_face_t turn_face, const cube_turn_t turn_degree) {
         cube[stickerIdxPrefix + sticker_src_idx] = cube[stickerIdxPrefix + sticker_dest_idx];
         cube[stickerIdxPrefix + sticker_dest_idx] = tempColorIdx;
       }
-      return; // 分支已经处理正视面颜色更新，直接返回
+      return; // 分支已经处理旋转面颜色更新，直接返回
     }
     case CUBE_TURN_270: {
       // 相邻面颜色更新
       for (cube_color_t i = 0; i < sizeof(stickerIdx); ++i) {
-        tempColorIdx = cube[faceIdx[CUBE_SIDE_U] * CUBE_FACE_STICKER_NUM + stickerIdx[i]];
-        cube[faceIdx[CUBE_SIDE_U] * CUBE_FACE_STICKER_NUM + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_R] * CUBE_FACE_STICKER_NUM + OFFSET_R(stickerIdx[i])];
-        cube[faceIdx[CUBE_SIDE_R] * CUBE_FACE_STICKER_NUM + OFFSET_R(stickerIdx[i])] = cube[faceIdx[CUBE_SIDE_D] * CUBE_FACE_STICKER_NUM + stickerIdx[i]];
-        cube[faceIdx[CUBE_SIDE_D] * CUBE_FACE_STICKER_NUM + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_L] * CUBE_FACE_STICKER_NUM + OFFSET_L(stickerIdx[i])];
-        cube[faceIdx[CUBE_SIDE_L] * CUBE_FACE_STICKER_NUM + OFFSET_L(stickerIdx[i])] = tempColorIdx;
+        tempColorIdx = cube[faceIdx[CUBE_SIDE_U] * STICKER_PER_FACE + stickerIdx[i]];
+        cube[faceIdx[CUBE_SIDE_U] * STICKER_PER_FACE + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_R] * STICKER_PER_FACE + OFFSET_R(stickerIdx[i])];
+        cube[faceIdx[CUBE_SIDE_R] * STICKER_PER_FACE + OFFSET_R(stickerIdx[i])] = cube[faceIdx[CUBE_SIDE_D] * STICKER_PER_FACE + stickerIdx[i]];
+        cube[faceIdx[CUBE_SIDE_D] * STICKER_PER_FACE + stickerIdx[i]] = cube[faceIdx[CUBE_SIDE_L] * STICKER_PER_FACE + OFFSET_L(stickerIdx[i])];
+        cube[faceIdx[CUBE_SIDE_L] * STICKER_PER_FACE + OFFSET_L(stickerIdx[i])] = tempColorIdx;
       }
       break;
     }
     default:
       break;
   }
-  // 正视面颜色更新（i: 0~角块  1~棱块）
+  // 旋转面颜色更新（i: 0~角块  1~棱块）
   for (uint8_t i = STICKER_CORNER; i <= STICKER_EDGE; ++i) {
     cube_color_t sticker_src_idx = i;
-    cube_color_t sticker_dest_idx = (sticker_src_idx + stickerIdxOffset) % CUBE_FACE_STICKER_NUM;
+    cube_color_t sticker_dest_idx = (sticker_src_idx + stickerIdxOffset) % STICKER_PER_FACE;
     tempColorIdx = cube[stickerIdxPrefix + sticker_src_idx];
     cube[stickerIdxPrefix + sticker_src_idx] = cube[stickerIdxPrefix + sticker_dest_idx];
     uint8_t update_times = CUBE_TURN_CYCLE - 2;
     while (update_times--) {
       sticker_src_idx = sticker_dest_idx;
-      sticker_dest_idx = (sticker_src_idx + stickerIdxOffset) % CUBE_FACE_STICKER_NUM;
+      sticker_dest_idx = (sticker_src_idx + stickerIdxOffset) % STICKER_PER_FACE;
       cube[stickerIdxPrefix + sticker_src_idx] = cube[stickerIdxPrefix + sticker_dest_idx];
     }
     cube[stickerIdxPrefix + sticker_dest_idx] = tempColorIdx;
@@ -143,7 +143,7 @@ void cube_turn(const cube_face_t turn_face, const cube_turn_t turn_degree) {
  * @return 无
  */
 void cube_parse_step(const char* scramble_step) {
-  // 判断正视面
+  // 判断旋转面
   uint8_t turn_face;
   switch (scramble_step[0]) {
     case 'F':

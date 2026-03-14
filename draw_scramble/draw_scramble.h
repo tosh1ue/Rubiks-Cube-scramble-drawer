@@ -16,9 +16,9 @@ extern "C" {
 
 #define CUBE_ORDER 3 // 魔方阶数
 #define CUBE_FACE_NUM 6 // 魔方面数
-#define CUBE_FACE_STICKER_NUM (CUBE_ORDER * CUBE_ORDER - 1) // 魔方每面色块数，省略中心块
+#define STICKER_PER_FACE (CUBE_ORDER * CUBE_ORDER - 1) // 魔方每面色块数，省略中心块
 #define CUBE_TURN_CYCLE 4 // 魔方转动周期
-#define CUBE_STICKER_NUM (CUBE_FACE_NUM * CUBE_FACE_STICKER_NUM) // 魔方总色块数
+#define CUBE_STICKER_NUM (CUBE_FACE_NUM * STICKER_PER_FACE) // 魔方总色块数
 
 /**
  * @brief 魔方转动角度
@@ -60,7 +60,7 @@ typedef uint8_t cube_face_t;
 
 /**
  * @brief 魔方颜色结构，由于中心块不变，无需存储
- * @details 用face_idx * gap + sticker_idx 取值
+ * @details 用face_idx * sticker_per_face + sticker_idx 取值
  *          +-----------+
  *          | 0 | 1 | 2 |
  *          +-----------+
@@ -87,8 +87,8 @@ typedef uint8_t cube_face_t;
 
 #define STICKER_OFFSET_R 2
 #define STICKER_OFFSET_L 6
-#define OFFSET_R(sticker_idx) ((sticker_idx + STICKER_OFFSET_R) % CUBE_FACE_STICKER_NUM)
-#define OFFSET_L(sticker_idx) ((sticker_idx + STICKER_OFFSET_L) % CUBE_FACE_STICKER_NUM)
+#define OFFSET_R(sticker_idx) ((sticker_idx + STICKER_OFFSET_R) % STICKER_PER_FACE)
+#define OFFSET_L(sticker_idx) ((sticker_idx + STICKER_OFFSET_L) % STICKER_PER_FACE)
 
 void cube_reset_color(void);
 
