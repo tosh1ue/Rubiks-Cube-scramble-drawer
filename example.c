@@ -17,12 +17,12 @@
  * @brief 使用宏函数将魔方颜色索引映射到对应ANSI颜色代码
  */
 #define GET_COLOR(index) \
-    ((index) == 0 ? COLOR_GREEN : \
-     (index) == 1 ? COLOR_RED : \
-     (index) == 2 ? COLOR_BLUE : \
-     (index) == 3 ? COLOR_ORANGE : \
-     (index) == 4 ? COLOR_WHITE : \
-     (index) == 5 ? COLOR_YELLOW : \
+    ((index) == CUBE_FACE_F_IDX ? COLOR_GREEN : \
+     (index) == CUBE_FACE_R_IDX ? COLOR_RED : \
+     (index) == CUBE_FACE_B_IDX ? COLOR_BLUE : \
+     (index) == CUBE_FACE_L_IDX ? COLOR_ORANGE : \
+     (index) == CUBE_FACE_U_IDX ? COLOR_WHITE : \
+     (index) == CUBE_FACE_D_IDX ? COLOR_YELLOW : \
      COLOR_WHITE)  // 默认返回白色
 
 /**
