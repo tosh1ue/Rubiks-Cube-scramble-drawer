@@ -69,30 +69,30 @@ typedef uint8_t cube_face_t;
  *          | 6 | 5 | 4 |
  *          +-----------+
  */
-#define CUBE_STICKER_FLU_IDX 0
-#define CUBE_STICKER_FU_IDX 1
-#define CUBE_STICKER_FRU_IDX 2
-#define CUBE_STICKER_FR_IDX 3
-#define CUBE_STICKER_FRD_IDX 4
-#define CUBE_STICKER_FD_IDX 5
-#define CUBE_STICKER_FLD_IDX 6
-#define CUBE_STICKER_FL_IDX 7
+#define CUBE_STICKER_LU_IDX 0
+#define CUBE_STICKER_U_IDX 1
+#define CUBE_STICKER_RU_IDX 2
+#define CUBE_STICKER_R_IDX 3
+#define CUBE_STICKER_RD_IDX 4
+#define CUBE_STICKER_D_IDX 5
+#define CUBE_STICKER_LD_IDX 6
+#define CUBE_STICKER_L_IDX 7
 
 /**
  * @brief 面内色块颜色交换相关宏定义
  */
-#define STICKER_CORNER 0
-#define STICKER_EDGE 1
-#define STICKER_GAP 2
+#define STICKER_CORNER_START_IDX CUBE_STICKER_LU_IDX
+#define STICKER_EDGE_START_IDX CUBE_STICKER_U_IDX
+#define STICKER_GAP (CUBE_STICKER_RU_IDX - CUBE_STICKER_LU_IDX)
 
-#define STICKER_OFFSET_R 2
-#define STICKER_OFFSET_L 6
+#define STICKER_OFFSET_R ((CUBE_TURN_CYCLE - CUBE_TURN_270) * STICKER_GAP)
+#define STICKER_OFFSET_L ((CUBE_TURN_CYCLE - CUBE_TURN_90) * STICKER_GAP)
 #define OFFSET_R(sticker_idx) ((sticker_idx + STICKER_OFFSET_R) % STICKER_PER_FACE)
 #define OFFSET_L(sticker_idx) ((sticker_idx + STICKER_OFFSET_L) % STICKER_PER_FACE)
 
 void cube_reset_color(void);
 
-void cube_update_color(char *scramble_alg);
+void cube_update_color(char* scramble_alg);
 
 const cube_color_t* cube_get_color(void);
 

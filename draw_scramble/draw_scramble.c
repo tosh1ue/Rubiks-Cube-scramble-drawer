@@ -34,13 +34,13 @@ static cube_color_t cube[CUBE_STICKER_NUM];
 void get_sticker_idx(const cube_face_t turn_face, cube_color_t* idx) {
   const uint8_t is_even = turn_face % 2 == 0;
   if (is_even) {
-    idx[0] = CUBE_STICKER_FRU_IDX;
-    idx[1] = CUBE_STICKER_FR_IDX;
-    idx[2] = CUBE_STICKER_FRD_IDX;
+    idx[0] = CUBE_STICKER_RU_IDX;
+    idx[1] = CUBE_STICKER_R_IDX;
+    idx[2] = CUBE_STICKER_RD_IDX;
   } else {
-    idx[0] = CUBE_STICKER_FLD_IDX;
-    idx[1] = CUBE_STICKER_FL_IDX;
-    idx[2] = CUBE_STICKER_FLU_IDX;
+    idx[0] = CUBE_STICKER_LD_IDX;
+    idx[1] = CUBE_STICKER_L_IDX;
+    idx[2] = CUBE_STICKER_LU_IDX;
   }
 }
 
@@ -92,7 +92,7 @@ void cube_turn(const cube_face_t turn_face, const cube_turn_t turn_degree) {
         cube[faceIdx[CUBE_SIDE_R] * STICKER_PER_FACE + OFFSET_R(stickerIdx[i])] = tempColorIdx;
       }
       // 旋转面颜色更新（i: 0~角块  1~棱块）
-      for (uint8_t i = STICKER_CORNER; i <= STICKER_EDGE; ++i) {
+      for (uint8_t i = STICKER_CORNER_START_IDX; i <= STICKER_EDGE_START_IDX; ++i) {
         cube_color_t sticker_src_idx = i;
         cube_color_t sticker_dest_idx = (sticker_src_idx + stickerIdxOffset) % STICKER_PER_FACE;
         tempColorIdx = cube[stickerIdxPrefix + sticker_src_idx];
@@ -122,7 +122,7 @@ void cube_turn(const cube_face_t turn_face, const cube_turn_t turn_degree) {
       break;
   }
   // 旋转面颜色更新（i: 0~角块  1~棱块）
-  for (uint8_t i = STICKER_CORNER; i <= STICKER_EDGE; ++i) {
+  for (uint8_t i = STICKER_CORNER_START_IDX; i <= STICKER_EDGE_START_IDX; ++i) {
     cube_color_t sticker_src_idx = i;
     cube_color_t sticker_dest_idx = (sticker_src_idx + stickerIdxOffset) % STICKER_PER_FACE;
     tempColorIdx = cube[stickerIdxPrefix + sticker_src_idx];
