@@ -40,14 +40,14 @@ typedef uint8_t cube_turn_t;
 typedef uint8_t cube_color_t;
 
 /**
- * @brief 魔方面索引值
+ * @brief 魔方面索引值，和颜色一一对应
  */
-#define CUBE_FACE_F_IDX 0
-#define CUBE_FACE_U_IDX 1
-#define CUBE_FACE_R_IDX 2
-#define CUBE_FACE_B_IDX 3
-#define CUBE_FACE_D_IDX 4
-#define CUBE_FACE_L_IDX 5
+#define CUBE_FACE_F_IDX CUBE_COLOR_GREEN
+#define CUBE_FACE_U_IDX CUBE_COLOR_WHITE
+#define CUBE_FACE_R_IDX CUBE_COLOR_RED
+#define CUBE_FACE_B_IDX CUBE_COLOR_BLUE
+#define CUBE_FACE_D_IDX CUBE_COLOR_YELLOW
+#define CUBE_FACE_L_IDX CUBE_COLOR_ORANGE
 typedef uint8_t cube_face_t;
 
 /**
@@ -59,8 +59,8 @@ typedef uint8_t cube_face_t;
 #define CUBE_SIDE_L 3
 
 /**
- * @brief 魔方颜色结构，由于中心块不变，无需存储
- * @details 用face_idx * sticker_per_face + sticker_idx 取值
+ * @brief 魔方色块索引布局，由于中心块不变，无需存储
+ * @details 通过face_idx * STICKER_PER_FACE + sticker_idx 访问对应色块
  *          +-----------+
  *          | 0 | 1 | 2 |
  *          +-----------+
@@ -77,6 +77,7 @@ typedef uint8_t cube_face_t;
 #define CUBE_STICKER_D_IDX 5
 #define CUBE_STICKER_LD_IDX 6
 #define CUBE_STICKER_L_IDX 7
+typedef uint8_t cube_sticker_t;
 
 /**
  * @brief 面内色块颜色交换相关宏定义
@@ -92,9 +93,9 @@ typedef uint8_t cube_face_t;
 
 void cube_reset_color(void);
 
-void cube_update_color(char* scramble_alg);
+void cube_update_color(const char *scramble_alg);
 
-const cube_color_t* cube_get_color(void);
+const cube_color_t *cube_get_color(void);
 
 #ifdef __cplusplus
 }
