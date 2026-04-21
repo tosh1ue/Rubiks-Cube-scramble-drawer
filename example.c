@@ -1,6 +1,6 @@
-#include "./scramble_engine/scramble_engine.h"
 #include <stdio.h>
-#include <stdint.h>
+#include "scramble_engine.h"
+#include "scramble_generator.h"
 
 /**
  * @brief ANSI颜色代码（背景色）
@@ -91,9 +91,14 @@ void print_cube_with_color(const cube_color_t* cube) {
 }
 
 int main(void) {
+  const uint8_t scramble_len = 25;
+  char scramble_alg[scramble_len * 2];
+  cube_generate_scramble(scramble_alg, scramble_len);
+  printf("generated scramble alg: %s\r\n", scramble_alg);
+
   cube_reset_color(); // 初始化魔方颜色信息
   const cube_color_t* cube = cube_get_color();
-  cube_update_color("L B' D' L2 F2 L2 U' B2 D' L2 R2 F2 U L2 B' L' D B' L' F R'");
+  cube_update_color(scramble_alg);
   //print_cube_with_color(cube); // 部分终端不支持ANSI颜色转换
   print_cube_as_num(cube);
   return 0;
