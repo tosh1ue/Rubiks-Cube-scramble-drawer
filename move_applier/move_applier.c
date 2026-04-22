@@ -1,11 +1,11 @@
 /**
- * @file scramble_engine.c
+ * @file move_applier.c
  * @brief 用于根据打乱公式计算打乱后的颜色信息
  * @author tosh1ue
  * @date 2026-02-03
  */
 
-#include "scramble_engine.h"
+#include "move_applier.h"
 #include <string.h>
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))

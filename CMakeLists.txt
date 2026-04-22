@@ -3,17 +3,15 @@ project(rubiks-cube-scramble-engine C)
 
 set(CMAKE_C_STANDARD 99)
 
-set(CMAKE_PROJECT_NAME scramble_engine)
-
-include_directories(scramble_engine)
+set(CMAKE_PROJECT_NAME rubiks_cube_engine)
 
 add_executable(${CMAKE_PROJECT_NAME}
-        scramble_engine/scramble_engine.c
         scramble_generator/scramble_generator.c
+        move_applier/move_applier.c
         example.c
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-        scramble_engine
         scramble_generator
+        move_applier
 )

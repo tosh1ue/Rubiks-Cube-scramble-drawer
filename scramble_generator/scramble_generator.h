@@ -14,7 +14,6 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #define MOVE_FACE_F       0
 #define MOVE_FACE_U       1

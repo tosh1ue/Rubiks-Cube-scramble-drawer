@@ -7,7 +7,6 @@
 
 #include "scramble_generator.h"
 #include <string.h>
-#include <time.h>
 
 /**
  * @brief 生成随机数的方法
