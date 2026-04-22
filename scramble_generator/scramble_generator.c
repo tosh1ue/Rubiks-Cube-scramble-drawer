@@ -16,13 +16,20 @@
  * @return 生成的随机数
  */
 static uint8_t get_random(void) {
-  return (uint8_t)( rand() % UINT8_MAX ); // NOLINT(cert-msc50-cpp)
+  return (uint8_t)( rand() % (UINT8_MAX + 1) ); // NOLINT(cert-msc50-cpp)
 }
 
+/**
+ * @brief 生成WCA标准打乱公式
+ * @details 使用random-move，基于以下原则过滤：
+ *          1.连续的两个旋转不能是同一面，例如：R R'
+ *          2.连续的三个旋转不能都是对立面，例如：R L R
+ * @param scramble_alg 打乱公式缓冲区指针
+ * @param len 要生成的打乱长度
+ */
 void cube_generate_scramble(char *scramble_alg, uint8_t len) {
   if (scramble_alg == NULL) return;
   if (!IS_SCRAMBLE_LEN_VALID(len)) len = SCRAMBLE_DEFAULT_LEN;
-  srand(time(NULL) ^ (clock() << 16)); // NOLINT(cert-msc51-cpp)
   memset(scramble_alg, '\0', len * 3); // 重置打乱公式缓冲区
   uint8_t step_cnt = 0; // 记录当前已经生成步数长度
   char *scramble_pointer = scramble_alg; // 记录当前指针位置
@@ -36,11 +43,15 @@ void cube_generate_scramble(char *scramble_alg, uint8_t len) {
 
     // 检验生成的单步打乱是否有效
     if (step_cnt >= 2) {
-      if (ARE_FACES_OPPOSITE(move_face_idx, move_last_face_idx) && ARE_FACES_OPPOSITE(move_last_face_idx, move_second_last_face_idx)) {
+      // 过滤连续两个旋转都是同一面
+      if (ARE_FACES_SAME(move_face_idx, move_last_face_idx)) {
         continue;
       }
-    }
-    if (step_cnt >= 1) {
+      // 过滤连续三个旋转都是对立面
+      if (ARE_FACES_SAME(move_face_idx, move_second_last_face_idx) && ARE_FACES_OPPOSITE(move_last_face_idx, move_second_last_face_idx)) {
+        continue;
+      }
+    } else if (step_cnt >= 1) {
       if (ARE_FACES_SAME(move_face_idx, move_last_face_idx)) {
         continue;
       }
@@ -88,6 +99,7 @@ void cube_generate_scramble(char *scramble_alg, uint8_t len) {
         break;
     }
     // 单步打乱后添加空格，调试用
+    // 正式使用可以注释或直接移除
     *scramble_pointer = ' ';
     scramble_pointer++;
   }
