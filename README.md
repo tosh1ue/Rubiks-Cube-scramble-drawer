@@ -62,11 +62,23 @@ void cube_update_color(char *scramble_alg);
 ```c
 const cube_color_t *cube_get_color(void);
 ```
-# 示例
-example.c提供了两个前端绘制方法：
+# 示例代码
+example.c提供了两个前端绘制方法：  
+
+将魔方颜色信息转换为数字字符串输出：  
 ```c
 void print_cube_as_num(const cube_color_t *cube);
-
+```
+将魔方颜色信息转换为ANSI颜色代码输出：  
+```c
 void print_cube_with_color(const cube_color_t *cube);
 ```
-由于部分终端输出不支持ANSI颜色代码，所以main方法中默认调用`print_cube_as_num`进行输出。
+由于部分终端输出不支持ANSI颜色代码，所以main方法中默认调用`print_cube_as_num`进行输出。  
+# 使用
+```bash
+git clone https://github.com/tosh1ue/rubiks-cube-scramble-engine.git
+cd rubiks-cube-scramble-engine
+cmake -B build -S .
+cmake --build build
+./build/rubiks_cube_engine
+```
