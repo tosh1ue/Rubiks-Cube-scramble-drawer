@@ -44,7 +44,16 @@ static void cube_parse_step(const char face_char, const char suffix_char);
 根据旋转面和旋转角度，确定需要交换的相邻面序号及需要交换的色块的序号，执行颜色更新。
 ```c
 static void cube_turn(const cube_face_t turn_face, const cube_turn_t turn_angle);
-```
+```  
+
+---
+
+`scramble_generator`部分使用random-move，生成随机打乱步骤的打乱公式。虽然无法确保魔方的随机状态，但random-move结合一定的过滤规则生成的打乱公式已经基本可用，所以对于单片机等资源紧张的平台来说是一个不错的选择。  
+当前的过滤规则如下：  
+- 禁止连续两个旋转操作都在同一面，例如`R R'`
+- 禁止连续三个旋转操作都在相对面，例如`R L R`
+
+随机步骤生成过程用到了拒绝采样来保证随机数出现的概率一致，为了方便过滤无效打乱，分别随机生成旋转面和旋转角度，再组合成打乱字符串。如此往复，直到打乱公式长度满足要求。
 # API
 生成打乱公式：
 ```c
