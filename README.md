@@ -29,7 +29,7 @@ sticker_color = cube[sticker_idx_prefix + sticker_idx];
 cube_color_t color = cube[CUBE_FACE_R_IDX * STICKER_PER_FACE + CUBE_STICKER_RU_IDX];
 ```
 # 算法设计
-算法采用**自顶向下**的设计，接收WCA标准打乱公式（有/无空格都兼容），逐步解析并执行原地颜色信息更新。
+`move_applier`部分的算法采用**自顶向下**的设计，接收WCA标准打乱公式（有/无空格都兼容），逐步解析并执行原地颜色信息更新。
 ### 第一层：解析打乱字符串
 将打乱公式字符串拆解成R、R2、R'等单步打乱。
 ```c
