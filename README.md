@@ -45,42 +45,41 @@ static void cube_parse_step(const char face_char, const char suffix_char);
 根据旋转面和旋转角度，确定需要交换的相邻面序号及需要交换的色块的序号，执行颜色更新。
 ```c
 static void cube_turn(const cube_face_t turn_face, const cube_turn_t turn_angle);
-```  
-
+```
 ---
-
 `scramble_generator`部分使用random-move，生成随机打乱步骤的打乱公式。虽然无法确保魔方的随机状态，但random-move结合一定的过滤规则生成的打乱公式已经基本可用，所以对于单片机等资源紧张的平台来说是一个不错的选择。  
 当前的过滤规则如下：  
 - 禁止连续两个旋转操作都在同一面，例如`R R'`
 - 禁止连续三个旋转操作都在相对面，例如`R L R`
 
-随机步骤生成过程用到了拒绝采样来保证随机数出现的概率一致，为了方便过滤无效打乱，分别随机生成旋转面和旋转角度，再组合成打乱字符串。如此往复，直到打乱公式长度满足要求。
+随机步骤生成过程用到了拒绝采样来保证随机数出现的概率一致，为了方便过滤无效打乱，分别随机生成旋转面和旋转角度，再组合成打乱字符串。如此往复，直到打乱公式长度满足要求。  
+
+使用宏定义`SCRAMBLE_WITH_SPACE`来控制打乱公式中是否包含空格。
 # API
-生成打乱公式：
 ```c
+// 生成打乱公式
 void cube_generate_scramble(char *scramble_alg, uint8_t len)：
 ```
-重置魔方颜色：
 ```c
+// 重置魔方颜色
 void cube_reset_color(void);
 ```
-根据打乱公式更新魔方颜色：
 ```c
+// 根据打乱公式更新魔方颜色
 void cube_update_color(char *scramble_alg);
 ```
-获取指向存储魔方颜色信息的数组的只读指针：
 ```c
+// 获取指向存储魔方颜色信息的数组的只读指针
 const cube_color_t *cube_get_color(void);
 ```
 # 示例代码
-example.c提供了两个前端绘制方法  
-
-将魔方颜色信息转换为数字字符串输出：  
+`example.c`提供了两个前端绘制方法
 ```c
+// 将魔方颜色信息转换为数字字符串输出
 void print_cube_as_num(const cube_color_t *cube);
 ```
-将魔方颜色信息转换为ANSI颜色代码输出：  
 ```c
+// 将魔方颜色信息转换为ANSI颜色代码输出
 void print_cube_with_color(const cube_color_t *cube);
 ```
 由于部分终端输出不支持ANSI颜色代码，所以main方法中默认调用`print_cube_as_num`进行输出。  
