@@ -96,7 +96,7 @@ void print_cube_with_color(const cube_color_t* cube) {
 int main(void) {
   srand(time(NULL) ^ (clock() << 16)); // NOLINT(cert-msc51-cpp)
   const uint8_t scramble_len = 25;
-  char scramble_alg[scramble_len * 3];
+  char scramble_alg[scramble_len * SCRAMBLE_STEP_LEN];
   cube_generate_scramble(scramble_alg, scramble_len);
   printf("generated scramble alg: %s\r\n", scramble_alg);
 

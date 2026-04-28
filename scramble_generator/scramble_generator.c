@@ -34,7 +34,7 @@ static uint8_t get_unbiased_in_range(const uint8_t range) {
 void cube_generate_scramble(char *scramble_alg, uint8_t len) {
   if (scramble_alg == NULL) return;
   if (!IS_SCRAMBLE_LEN_VALID(len)) len = SCRAMBLE_DEFAULT_LEN;
-  memset(scramble_alg, '\0', len * 3); // 重置打乱公式缓冲区
+  memset(scramble_alg, '\0', len * SCRAMBLE_STEP_LEN); // 重置打乱公式缓冲区
   uint8_t step_cnt = 0; // 记录当前已经生成步数长度
   char *scramble_pointer = scramble_alg; // 记录当前指针位置
   uint8_t move_face_idx = UINT8_MAX;
@@ -103,9 +103,9 @@ void cube_generate_scramble(char *scramble_alg, uint8_t len) {
       default:
         break;
     }
-    // 单步打乱后添加空格，调试用
-    // 正式使用可以注释或直接移除
+#ifdef SCRAMBLE_WITH_SPACE
     *scramble_pointer = ' ';
     scramble_pointer++;
+#endif
   }
 }

@@ -15,6 +15,8 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 
+#define SCRAMBLE_WITH_SPACE
+
 #define MOVE_FACE_F       0
 #define MOVE_FACE_U       1
 #define MOVE_FACE_R       2
@@ -43,6 +45,12 @@ typedef uint8_t move_angle_t;
 #define SCRAMBLE_MAX_LEN             25
 #define SCRAMBLE_DEFAULT_LEN         SCRAMBLE_MAX_LEN
 #define IS_SCRAMBLE_LEN_VALID(len)   (len >= SCRAMBLE_MIN_LEN && len <= SCRAMBLE_MAX_LEN)
+
+#ifdef SCRAMBLE_WITH_SPACE
+#define SCRAMBLE_STEP_LEN 3
+#else
+#define SCRAMBLE_STEP_LEN 2
+#endif
 
 void cube_generate_scramble(char *scramble_alg, uint8_t len);
 
